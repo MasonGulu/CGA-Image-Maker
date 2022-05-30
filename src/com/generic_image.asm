@@ -15,7 +15,7 @@ cpu 8086
                 ; 3 640x200
                 ; 4 80 x100 composite
                 ; 5 80 x25 text
-%define INTENSITY       0b010000
+%define INTENSITY       0
                 ; 0b010000 for intensity bit set
 %define IMAGEMODE       2
                 ; Mode
@@ -26,7 +26,7 @@ cpu 8086
 %if IMAGETYPE = 5
     %define IMAGESIZE       4000
 %else
-    %define IMAGESIZE       16000
+    %define IMAGESIZE       16192
 %endif
 %define IMAGESTART      0
 
@@ -72,7 +72,7 @@ entry:
     writetoport CGA_COLOR, (0b100000 | INTENSITY)
     ; Set color palette to 1
 %elif IMAGETYPE = 6
-    mov ax, 0x005
+    mov ax, 0x0005
     int 0x10    ; Make the bios set the video mode to 320x200 with the alternative palette
 
     writetoport CGA_COLOR, INTENSITY

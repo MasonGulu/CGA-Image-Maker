@@ -6,11 +6,11 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 
 public class Mode2Bpp implements ICGA {
-    private Palette palette;
-    private int width;
-    private int height;
-    private PaletteImage image;
-    private PALETTE selectedPalette;
+    private final Palette palette;
+    private final int width;
+    private final int height;
+    private final PaletteImage image;
+    private final PALETTE selectedPalette;
 
     enum PALETTE {
         OLD_0,
@@ -75,19 +75,16 @@ public class Mode2Bpp implements ICGA {
     }
 
     @Override
-    public int[] getCom() {
+    public int[] getCom() throws IOException {
         String comName = "2B.com";
-        try (InputStream in = getClass().getResourceAsStream("/com/"+comName);
-             BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
-            int length = in.available();
-            int[] outputData = new int[16000 + length];
-            for (int i = 0; i < length; i++) {
-                outputData[i] = reader.read();
-            }
-            Mode.mergeAtIndex(outputData, this.get(), length);
-            return outputData;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        InputStream in = getClass().getResourceAsStream("/com/"+comName);
+        int length = in.available();
+        int[] outputData = new int[16000 + length];
+        for (int i = 0; i < length; i++) {
+            outputData[i] = in.read();
         }
+        in.close();
+        Mode.mergeAtIndex(outputData, this.get(), length);
+        return outputData;
     }
 }

@@ -1,5 +1,4 @@
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Objects;
@@ -8,7 +7,7 @@ import org.apache.commons.cli.*;
 import org.apache.commons.io.FilenameUtils;
 
 public class ImageMaker {
-
+    static final int VERSION = 1;
     public static void main(String[] args) {
 
         boolean showHelp = false;
@@ -71,7 +70,7 @@ public class ImageMaker {
         options.addOption(option_outputComFile);
         options.addOption(option_resize);
 
-        System.out.println("CGA Image Generator (c) 2022");
+        System.out.println("CGA Image Generator version " + VERSION);
 
         try {
             commandLine = parser.parse(options, args);
@@ -134,8 +133,7 @@ public class ImageMaker {
                             saveInterlacedFiles, interlacedFilesPath, saveComFile, comFilePath);
                 }
             } catch (IOException e) {
-                throw new RuntimeException(e);
-                //showHelp = true;
+                showHelp = true;
             }
         }
         if (showHelp) {
@@ -149,12 +147,14 @@ public class ImageMaker {
             // 2Bo0, 2Bo1, 2bo - 2byte per pixel old/new subpalette
             // 2Bn0, 2Bn1, 2Bn
             String header = "Convert an image into a CGA compatible format.\n\n";
-            String footer = "--------------Modes-------------\n" +
-                    "320x200 4 color | 2b0L 2b1L 2b5L\n" +
-                    "...             | 2b0H 2b1H 2b5H\n" +
-                    "640x200 2 color | 1b\n" +
-                    "80 x100 256     | 2Bo0 2bo1 2bn0 2Bn1\n" +
-                    "80 x100 512     | 2Bo       2bn\n";
+            String footer = """
+                    --------------Modes-------------
+                    320x200 4 color | 2b0L 2b1L 2b5L
+                    ...             | 2b0H 2b1H 2b5H
+                    640x200 2 color | 1b
+                    80 x100 256     | 2Bo0 2bo1 2bn0 2Bn1
+                    80 x100 512     | 2Bo       2bn
+                    """;
 
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("cgaimage mode image",
@@ -164,8 +164,8 @@ public class ImageMaker {
 
     static void writeToFile(String filename, int[] data) throws IOException {
         FileOutputStream file = new FileOutputStream(filename);
-        for (int i = 0; i < data.length; i++) {
-            file.write((byte) data[i]);
+        for (int datum : data) {
+            file.write((byte) datum);
         }
         file.close();
     }
@@ -183,14 +183,10 @@ public class ImageMaker {
                      boolean saveInterlacedFiles, String interlacedFilesPath,
                      boolean saveComFile, String comFilePath) throws IOException {
         BufferedImage inputImage = ImageIO.read(new File(inputFile));
-        if (!(saveRawFile || saveInterlacedFiles || savePostImage)) {
+        if (!(saveRawFile || saveInterlacedFiles || savePostImage || saveComFile)) {
             System.out.println("!!!! No output was specified !!!!");
             return;
         }
-        System.out.println("Processing image of size (" + inputImage.getWidth()
-                + ", " + inputImage.getHeight() + ") in mode " + mode + "...");
-        if (doResize)
-            System.out.println("(Resize enabled!)");
         long startTime = System.nanoTime();
         ICGA cgaImage = switch (mode) {
             case "2b0L" -> new Mode2bpp(inputImage, Mode2bpp.PALETTE.LOW_0, doDither, doResize);

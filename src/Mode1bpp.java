@@ -6,9 +6,9 @@ import java.io.InputStreamReader;
 
 public class Mode1bpp implements ICGAInterlaced {
     private final Palette palette = new Palette(new int[]{0x000000, 0xFFFFFF});
-    private int width;
-    private int height;
-    private PaletteImage image;
+    private final int width;
+    private final int height;
+    private final PaletteImage image;
     Mode1bpp(BufferedImage image, boolean dither, boolean resize) {
         if (resize)
             image = Mode.resizeImage(image, 640, 200);
@@ -43,15 +43,15 @@ public class Mode1bpp implements ICGAInterlaced {
         // 1 3 ....
         int[] odd = new int[(this.width / 8) * (this.height / 2)];
         for (int row = 1; row < this.height; row += 2) {
-            Mode.mergeAtIndex(odd, getRow(row), row/2*this.width/8);
+            Mode.mergeAtIndex(odd, getRow(row), (row-1)/2*this.width/8);
         }
         return odd;
     }
 
     public int[] get() {
-        int[] im = new int[(this.width / 8) * this.height];
+        int[] im = new int[(this.width / 8) * this.height + 192];
         Mode.mergeAtIndex(im, getEven(), 0);
-        Mode.mergeAtIndex(im, getOdd(), this.width/8*this.height/2);
+        Mode.mergeAtIndex(im, getOdd(), this.width/8 * this.height/2 + 192);
         return im;
     }
 
@@ -60,19 +60,16 @@ public class Mode1bpp implements ICGAInterlaced {
     }
 
     @Override
-    public int[] getCom() {
+    public int[] getCom() throws IOException {
         String comName = "1b.com";
-        try (InputStream in = getClass().getResourceAsStream("/com/"+comName);
-             BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
-            int length = in.available();
-            int[] outputData = new int[16000 + length];
-            for (int i = 0; i < length; i++) {
-                outputData[i] = reader.read();
-            }
-            Mode.mergeAtIndex(outputData, this.get(), length);
-            return outputData;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        InputStream in = getClass().getResourceAsStream("/com/"+comName);
+        int length = in.available();
+        int[] outputData = new int[16192 + length];
+        for (int i = 0; i < length; i++) {
+            outputData[i] = in.read();
         }
+        in.close();
+        Mode.mergeAtIndex(outputData, this.get(), length);
+        return outputData;
     }
 }
