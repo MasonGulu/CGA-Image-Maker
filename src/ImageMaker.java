@@ -118,7 +118,7 @@ public class ImageMaker {
             try {
                 if (doAllModes) {
                     String[] modes = new String[]{"2b0L", "2b0H", "2b1L", "2b1H", "2b5L", "2b5H", "1b",
-                            "2Bn0", "2Bn1", "2Bn2","2Bo0", "2Bo1", "2Bo2"};
+                            "2Bn0", "2Bn1", "2Bn","2Bo0", "2Bo1", "2Bo"};
                     for (String mode : modes) {
                         String modRawFilePath = insertBeforeFileEx(rawFilePath, "_"+mode);
                         String modPostImagePath = insertBeforeFileEx(postImagePath, "_"+mode);
@@ -198,10 +198,10 @@ public class ImageMaker {
             case "1b" -> new Mode1bpp(inputImage, doDither, doResize);
             case "2Bn0" -> new Mode2Bpp(inputImage, Mode2Bpp.PALETTE.NEW_0, doDither, doResize);
             case "2Bn1" -> new Mode2Bpp(inputImage, Mode2Bpp.PALETTE.NEW_1, doDither, doResize);
-            case "2Bn2" -> new Mode2Bpp(inputImage, Mode2Bpp.PALETTE.NEW_2, doDither, doResize);
+            case "2Bn" -> new Mode2Bpp(inputImage, Mode2Bpp.PALETTE.NEW_2, doDither, doResize);
             case "2Bo0" -> new Mode2Bpp(inputImage, Mode2Bpp.PALETTE.OLD_0, doDither, doResize);
             case "2Bo1" -> new Mode2Bpp(inputImage, Mode2Bpp.PALETTE.OLD_1, doDither, doResize);
-            case "2Bo2" -> new Mode2Bpp(inputImage, Mode2Bpp.PALETTE.OLD_2, doDither, doResize);
+            case "2Bo" -> new Mode2Bpp(inputImage, Mode2Bpp.PALETTE.OLD_2, doDither, doResize);
             default -> throw new IOException(); // haha, wouldn't it be funny if I lied?
         };
         long endTime = System.nanoTime();
